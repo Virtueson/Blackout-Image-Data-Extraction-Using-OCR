@@ -19,8 +19,9 @@ The frontend sends the uploaded image to the backend, where the OCR processing o
 
 - Python 3.x
 - Flask
-- Tesseract (for OCR processing)
+- OpenCV (for OCR processing)
 - `pytesseract` Python library
+- other libraries (numpy, pandas, matplotlib)
 - Image file (JPG/JPEG)
 
 ## Project Structure

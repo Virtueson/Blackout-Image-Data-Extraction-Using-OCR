@@ -57,3 +57,4 @@ Step 3: Open the Frontend
     View the OCR Results:
 
     Once the image is processed, the extracted information (such as PLN name, date, time, duration, and affected area) will be displayed on the page and stored in your excel file.
+## You can check PLN zip file for proper images to be used in this project

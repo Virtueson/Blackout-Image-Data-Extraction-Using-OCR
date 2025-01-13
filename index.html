@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Image for OCR Processing</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f9fafc;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            margin-top: 30px;
+            color: #0056b3;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #ffffff;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        input[type="file"] {
+            display: block;
+            margin: 20px auto;
+            padding: 15px;
+            border: 2px dashed #0056b3;
+            border-radius: 6px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 16px;
+            color: #0056b3;
+            background-color: #f4f8ff;
+            transition: background-color 0.3s ease;
+        }
+
+        input[type="file"]:hover {
+            background-color: #e1efff;
+        }
+
+        button {
+            display: block;
+            width: 100%;
+            background-color: #0056b3;
+            color: #ffffff;
+            border: none;
+            padding: 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: background-color 0.3s ease, transform 0.2s ease;
+        }
+
+        button:hover {
+            background-color: #00408b;
+            transform: scale(1.02);
+        }
+
+        #statusMessage {
+            margin-top: 20px;
+            font-size: 16px;
+            text-align: center;
+        }
+
+        .result {
+            margin-top: 20px;
+            background-color: #f4f8ff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .result p {
+            margin: 10px 0;
+            padding: 10px;
+            background: #e1efff;
+            border-radius: 6px;
+            color: #0056b3;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            font-size: 14px;
+            color: #888;
+        }
+
+        footer a {
+            color: #0056b3;
+            text-decoration: none;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>Upload a PLN Image for OCR Processing</h1>
+    <div class="container">
+        <input type="file" id="imageInput" accept="image/jpeg, image/jpg" />
+        <button onclick="uploadImage()">Upload</button>
+        <div id="statusMessage"></div>
+        <div class="result">
+            <h2>Processing Result:</h2>
+            <p id="plnName"></p>
+            <p id="time"></p>
+            <p id="start_time"></p>
+            <!-- <p id="end_time"></p> -->
+            <p id="duration"></p>
+            <p id="affected_area"></p>
+        </div>
+    </div>
+    <script>
+        async function uploadImage() {
+            const input = document.getElementById('imageInput');
+            const file = input.files[0];
+            const statusMessage = document.getElementById('statusMessage');
+            const plnName = document.getElementById('plnName');
+            const time = document.getElementById('time');
+            const start_time = document.getElementById('start_time');
+            // const end_time = document.getElementById('end_time');
+            const duration = document.getElementById('duration');
+            const affected_area = document.getElementById('affected_area');
+
+            // Clear previous results
+            statusMessage.textContent = '';
+            plnName.textContent = '';
+            time.textContent = '';
+            start_time.textContent = '';
+            // end_time.textContent = '';
+            duration.textContent = '';
+            affected_area.textContent = '';
+
+            if (!file) {
+                statusMessage.style.color = 'red';
+                statusMessage.textContent = 'Please select an image before uploading.';
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('file', file);
+
+            try {
+                const response = await fetch('http://127.0.0.1:5000/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    statusMessage.style.color = 'green';
+                    statusMessage.textContent = data.message || 'Image processed successfully!';
+                    plnName.textContent = `PLN Name: ${data.pln_name || 'Not found'}`;
+                    time.textContent = `Date: ${data.time || 'Not found'}`;
+                    start_time.textContent = `Time: ${data.start_time || 'Not found'} - ${data.end_time || 'Not found'}`;
+                    duration.textContent = `Duration (hours): ${data.duration || 'Not found'}`;
+                    affected_area.textContent = `Area: ${data.affected_area || 'Not found'}`;
+                } else {
+                    statusMessage.style.color = 'red';
+                    statusMessage.textContent = data.error || 'An error occurred during processing.';
+                }
+            } catch (error) {
+                statusMessage.style.color = 'red';
+                statusMessage.textContent = `Failed to connect to the server. Error: ${error.message}`;
+            }
+        }
+    </script>
+</body>
+</html>
